@@ -124,13 +124,13 @@
     const suggestion = document.getElementById("aiSuggestion");
 
     if (isNaN(goal)) {
-      suggestion.textContent = "❌ Please enter a valid number like 2048.";
+      suggestion.textContent = "Please enter a valid number like 2048 (2^n).";
       return;
     }
 
     // Lấy ma trận board
     const board = getCurrentBoardMatrix(window.gm);
-    suggestion.textContent = "⏳ AI is thinking...";
+    suggestion.textContent = "AI is thinking...";
 
     try {
       const response = await fetch("http://127.0.0.1:5000/get_move", {
@@ -147,12 +147,12 @@
       const data = await response.json();
 
       if (data.best_move) {
-        suggestion.textContent = `✅ Best move: ${data.best_move.toUpperCase()}`;
+        suggestion.textContent = `Best move: ${data.best_move.toUpperCase()}`;
       } else {
-        suggestion.textContent = "⚠️ Could not get a suggestion.";
+        suggestion.textContent = "Could not get a suggestion.";
       }
     } catch (error) {
-      suggestion.textContent = "❌ Error contacting AI server.";
+      suggestion.textContent = "Error contacting AI server.";
       console.error(error);
     }
   });
