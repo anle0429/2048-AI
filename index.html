@@ -103,20 +103,59 @@
   <script src="js/game_manager.js"></script>
   <script src="js/application.js"></script>
   <script>
-  document.getElementById("helpBtn").addEventListener("click", function () 
-  {
+  function getCurrentBoardMatrix(gameManager) {
+    const cells = gameManager.grid.cells;
+    const matrix = [];
+
+    for (let row = 0; row < 4; row++) {
+      const rowData = [];
+      for (let col = 0; col < 4; col++) {
+        const tile = cells[row][col];
+        rowData.push(tile ? tile.value : 0);
+      }
+      matrix.push(rowData);
+    }
+
+    return matrix;
+  }
+
+  document.getElementById("helpBtn").addEventListener("click", async function () {
     const goal = parseInt(document.getElementById("goalInput").value);
     const suggestion = document.getElementById("aiSuggestion");
 
-    if (isNaN(goal)) 
-	{
-      suggestion.textContent = "❌ Please enter a valid number like 2^n.";
+    if (isNaN(goal)) {
+      suggestion.textContent = "❌ Please enter a valid number like 2048.";
+      return;
     }
-	const board = getCurrentBoardMatrix(window.gm);
-    console.log("Current Board Matrix:", board);
-    suggestion.textContent = "AI is thinking... (board logged in console)";
+
+    // Lấy ma trận board
+    const board = getCurrentBoardMatrix(window.gm);
+    suggestion.textContent = "⏳ AI is thinking...";
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/get_move", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          board: board,
+          goal: goal,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.best_move) {
+        suggestion.textContent = `✅ Best move: ${data.best_move.toUpperCase()}`;
+      } else {
+        suggestion.textContent = "⚠️ Could not get a suggestion.";
+      }
+    } catch (error) {
+      suggestion.textContent = "❌ Error contacting AI server.";
+      console.error(error);
+    }
   });
 </script>
-
 </body>
 </html>
